@@ -20,11 +20,30 @@
 
 
 
-//database
+//database connection
+// require('./app/classes/Database.php');
+// $database = new Database();
+// $rows = $database->table('contacts')
+//         ->where('email', 'like','%study%')
+//         ->get();
+// var_dump($rows);
+
+
 require('./app/classes/Database.php');
 $database = new Database();
-$rows = $database->table('contacts')
-        ->where('email', 'like','%study%')
-        ->get();
-var_dump($rows);
+//insert
+$data['fname'] = "yash";
+$data['lname'] = "motta";
+$data['email'] = "yash@gmail.com";
+echo "<br>INSERTED DATA IS:             ";
+$inserted = $database->table('users')
+            ->insert($data);
+var_dump($inserted);
 
+//deleted
+echo "<br>NO OF DELETED ROWS:           ";
+$deleted = $database->table('users')
+           ->deleteWhere("email", "yash@gmail.com")
+           ->count();
+
+var_dump($deleted);
