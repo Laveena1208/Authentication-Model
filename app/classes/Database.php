@@ -14,6 +14,12 @@ class Database
     {
         $dsn = "mysql:host={$this->host};dbname={$this->database}";
         $this->pdo = new PDO($dsn, $this->username, $this->password);
+        $this->pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_OBJ);
+    }
+
+    public function raw(string $query)
+    {
+        $this->pdo->query($query);
     }
 
     public function table(string $table):Database
@@ -22,6 +28,23 @@ class Database
         return $this;
     }
 
+    public function orWhere(array $data)
+    {
+        $keys = array_keys($data);
+        $condition = "";
+        foreach($keys as $index=>$key)
+        {
+            if($index != 0)
+            {
+                $condition .=" OR ";
+            }
+            $condition .="{$key} = :$key";
+        }
+        $sql = "SELECT * FROM {$this->table} WHERE $condition";
+        $this->ps = $this->pdo->prepare($sql);
+        $this->ps->execute($data);
+        return $this;
+    }
     public function where(string $field, string $operator, string $value):Database
     {
         $sql = "SELECT * FROM {$this->table} WHERE {$field} {$operator} :value";
@@ -64,6 +87,5 @@ class Database
         $this->ps = $this->pdo->prepare($sql);
         $this->ps->execute(['value'=>$value]);
         return $this;
-
     }
 }

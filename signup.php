@@ -1,13 +1,8 @@
 <?php
-require('./app/classes/DataBase.php');
-require('./app/classes/ErrorHandler.php');
-require('./app/classes/Validator.php');
+require('./app/init.php');
+$errors = $validator->errors();
 if(!empty($_POST))
 {
-    $database = new Database();
-    $errorHandler = new ErrorHandler();
-    $validator = new Validator($database, $errorHandler);
-    // die(var_dump($_POST));
     $validator->validate($_POST,[
         'email' => [
             'required' => true,
@@ -28,7 +23,16 @@ if(!empty($_POST))
 
     ]);
 
-    die(var_dump($validator->errors()->errors));
+    if(! $validator->fails())
+    {
+        $created = $user->create($_POST);
+        if($created)
+        {
+            header('Location: index.php');
+        }
+        
+    }
+    // die(var_dump($validator->errors()->errors));
 }
 ?>
 <!DOCTYPE html>
@@ -43,16 +47,38 @@ if(!empty($_POST))
     <h1>Sign Up</h1>
     <form action="signup.php" method ="POST">
         <div>
-            <label for="email"> Username</label>
+            <label for="username"> Username</label>
+            <br>
             <input type = "text" name ="username">
+            <br>
+            <?php
+            if($errors->has('username')):
+                echo "<span style = 'color: red; font-size: 12px'> {$errors->first('username')} </span>";
+            endif
+            ?>
+
         </div>
         <div>
             <label for="email"> email</label>
+            <br>
             <input type = "text" name ="email">
+            <br>
+            <?php
+            if($errors->has('email')):
+                echo "<span style = 'color: red; font-size: 12px'> {$errors->first('email')} </span>";
+            endif
+            ?>
         </div>
         <div>
-            <label for="email"> Password</label>
-            <input type = "text" name ="password">
+            <label for="password"> Password</label>
+            <br>
+            <input type = "password" name ="password">
+            <br>
+            <?php
+            if($errors->has('password')):
+                echo "<span style = 'color: red; font-size: 12px'> {$errors->first('password')}</span>";
+            endif
+            ?>
         </div>
         <div>
             <input type = "submit" value ="Sign Up">

@@ -5,7 +5,6 @@ class Validator
     private ErrorHandler $errorHandler;
     private Database $db;
     private $rules = ['required', 'minlength','maxlength','email','unique'];
-
     private $messages = [
         'required' => 'The :field field is required',
         'minlength' => 'The :field must be minimum od :satisfier character',
@@ -13,10 +12,16 @@ class Validator
         'email' => 'This is not a valid email address',
         'unique' => 'The :field is already taken'
     ];
-    public function __construct(Database $database, ErrorHandler $errorHandler)
+
+    public function __construct(Database $database)
     {
         $this->db = $database;
-        $this->errorHandler = $errorHandler;
+        $this->errorHandler = new ErrorHandler();
+    }
+
+    public function fails() :bool
+    {
+        return $this->errorHandler->hasErrors();
     }
 
     public function validate(array $data, array $rules)
