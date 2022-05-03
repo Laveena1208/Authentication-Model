@@ -30,6 +30,27 @@ class User
 
     }
 
+    public function update(array $data, int $id)
+    {
+        if(isset($data['password']))
+        {
+            $data['password']= Hash::make($data['password']);
+        }
+        return $this->database->table($this->table)
+        ->update($data,['id'=>$id]);
+    }
+
+    public function findByEmail(string $email)
+    {
+        return $this->database->table($this->table)
+        ->where('email', '=',$email)->first();
+    }
+
+    public function findById(string $id)
+    {
+        return $this->database->table($this->table)
+        ->where('id', '=',$id)->first();
+    }
     public function signIn(array $data): bool
     {
         $username = $data['username'];
@@ -52,6 +73,10 @@ class User
         return false;
     }
 
+    public function signOut()
+    {
+        unset($_SESSION[self::$sessionKey]);
+    }
     protected function setAuthSession(int $id)
     {
         $_SESSION[self::$sessionKey] = $id;

@@ -1,6 +1,12 @@
 <?php
 require('./app/init.php');
 
+$tokenData = isset($_COOKIE['remember']) ? $token->verify($_COOKIE['remember'], 1) : null;
+if($tokenData !=null)
+{
+    $_SESSION[User::$sessionKey] = $tokenData['user_id'];
+}
+
 if(isset($_SESSION[User::$sessionKey]))
 {
     $userId = $_SESSION[User::$sessionKey];
@@ -19,10 +25,10 @@ if(isset($_SESSION[User::$sessionKey]))
 <body>
     <?php 
     if($user->check()):?>
-        <p>You are signed in as <?= $userObj->username; ?> <a href="">Sign Out!</a></p>
+        <p>You are signed in as <?= $userObj->username; ?> <a href="signout.php">Sign Out!</a></p>
     <?php 
     else: ?>
-        <p>You look new, please either <a href="login.php">Login!</a> or  <a href="">Sign Up!</a></p>
+        <p>You look new, please either <a href="login.php">Login!</a> or  <a href="signup.php">Sign Up!</a></p>
     <?php
     endif; ?>
 </body>

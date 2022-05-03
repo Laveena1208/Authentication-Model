@@ -22,12 +22,47 @@ class Database
         $this->pdo->query($query);
     }
 
+    public function fetchAll(string $query, int $fetchMode = PDO::FETCH_ASSOC)
+    {
+        return $this->pdo->query($query)->fetchAll($fetchMode);
+    }
+
     public function table(string $table):Database
     {
         $this->table = $table;
         return $this;
     }
 
+    public function update(array $data, array $whereCondition)
+    {
+        $keys = array_keys($data);//['first_name', 'last_name']
+        $set = "";
+        forEach($keys as $index=>$key)
+        {
+            if($index !=0)
+            {
+                $set .= ", ";
+            }
+            $set .= "{$key} = :{$key}";
+        }
+        //setting 'and' where logic
+        $keys = array_keys($whereCondition);
+        $condition = "";
+        forEach($keys as $index=>$key)
+        {
+            if($index !=0)
+            {
+                $condition .= " AND ";
+            }
+            $condition .= "{$key} = :{$key}";
+        }
+        $sql = "UPDATE {$this->table} SET {$set} WHERE {$condition}";
+
+        $meregerdArrayForExec = array_merge($data, $whereCondition);
+        $this->ps = $this->pdo->prepare($sql);
+        return $this->ps->execute($meregerdArrayForExec);
+    
+    }
     public function orWhere(array $data)
     {
         $keys = array_keys($data);
@@ -45,6 +80,25 @@ class Database
         $this->ps->execute($data);
         return $this;
     }
+
+    public function andWhere(array $data)
+    {
+        $keys = array_keys($data);
+        $condition = "";
+        foreach($keys as $index=>$key)
+        {
+            if($index != 0)
+            {
+                $condition .=" AND ";
+            }
+            $condition .="{$key} = :$key";
+        }
+        $sql = "SELECT * FROM {$this->table} WHERE $condition";
+        $this->ps = $this->pdo->prepare($sql);
+        $this->ps->execute($data);
+        return $this;
+    }
+
     public function where(string $field, string $operator, string $value):Database
     {
         $sql = "SELECT * FROM {$this->table} WHERE {$field} {$operator} :value";

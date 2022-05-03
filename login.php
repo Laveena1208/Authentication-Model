@@ -1,11 +1,24 @@
 <?php
 require('./app/init.php');
+$tokenData = isset($_COOKIE['remember']) ? $token->verify($_COOKIE['remember'], 1) : null;
+if($tokenData !=null)
+{
+    $_SESSION[User::$sessionKey] = $tokenData['user_id'];
+}
 if(isset($_POST['login']))
 {
+    $rememberMe = isset($_POST['remember']);
     $loggedIn = $user->signIn($_POST);
 
     if($loggedIn)
     {
+        if($rememberMe)
+        {
+            $userId = $_SESSION[User::$sessionKey];
+            $tokenData = $token->createRememberMeToken($userId);
+
+            setcookie("remember", $tokenData['token'], time() + Token::$REMEMBER_EXPIRY_TIME_FOR_COOKIE);
+        }
         header('Location: index.php');
     }
     else
@@ -34,6 +47,12 @@ if(isset($_POST['login']))
             <label for ="password">Password</label>
             <br>
             <input type = "password" name = "password" placeholder="Password">
+        </div>
+        <div>
+            <label>
+            <br>
+            <input type = "checkbox" name = "remember" value="1">Remember Me
+            </label>
         </div>
         <div>
             <input type = "submit" name = "login" value = "Login">
