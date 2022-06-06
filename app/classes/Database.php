@@ -4,8 +4,8 @@ class Database
     protected string $host = 'localhost';
     protected int $port = 3360;
     protected string $database = 'addressbook';
-    protected string $username = 'Laveena';
-    protected string $password = 'laveena@';
+    protected string $username = '';
+    protected string $password = '';
 
     protected string $table;
     protected PDO $pdo;
@@ -106,6 +106,7 @@ class Database
         $this->ps->execute(['value'=>$value]);
         return $this;
     }
+
     public function get():array
     {
         return $this->ps->fetchAll();
@@ -135,6 +136,7 @@ class Database
     {
         return $this->where($field, "=", $value) ->count() ? true : false;
     }
+    
     public function deleteWhere($field, $value)
     {
         $sql = "DELETE FROM {$this->table} WHERE {$field}= :value";
